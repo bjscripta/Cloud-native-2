@@ -1,0 +1,5 @@
+:host { display: block; min-height: 100vh; background: #f4f7fb; color: #172033; }
+.topbar { display: flex; align-items: center; gap: 1rem; padding: 1rem 2rem; background: #14213d; color: white; }
+.brand { margin-right: auto; color: white; font-size: 1.25rem; font-weight: 700; text-decoration: none; }
+button { border: 0; border-radius: .5rem; padding: .65rem 1rem; cursor: pointer; }
+main { max-width: 900px; margin: 0 auto; padding: 3rem 1.25rem; }

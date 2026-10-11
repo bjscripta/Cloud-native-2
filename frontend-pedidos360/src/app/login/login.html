@@ -1,1 +1,10 @@
-<p>login works!</p>
+<section class="card">
+  <p class="eyebrow">Acceso seguro</p>
+  <h1>Pedidos360</h1>
+  <p>Inicia sesión con tu cuenta Microsoft para consultar el API protegido.</p>
+  @if (authenticated) {
+    <a class="button" routerLink="/clientes">Ver clientes</a>
+  } @else {
+    <button type="button" (click)="login()">Iniciar sesión con Microsoft</button>
+  }
+</section>

@@ -12,9 +12,9 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>inventario-service</artifactId>
+    <artifactId>facturacion-service</artifactId>
     <packaging>jar</packaging>
-    <name>inventario-service</name>
+    <name>facturacion-service</name>
 
     <build>
         <plugins>

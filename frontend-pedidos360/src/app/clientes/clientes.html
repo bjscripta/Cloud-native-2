@@ -1,0 +1,12 @@
+<section class="card">
+  <h1>Clientes</h1>
+  @if (cargando()) {
+    <p>Consultando API Gateway...</p>
+  } @else if (error()) {
+    <p class="error">{{ error() }}</p>
+  } @else if (clientes().length === 0) {
+    <p>La API respondió correctamente. Todavía no hay clientes registrados.</p>
+  } @else {
+    <pre>{{ clientes() | json }}</pre>
+  }
+</section>
