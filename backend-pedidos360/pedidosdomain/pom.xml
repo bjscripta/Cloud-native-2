@@ -18,6 +18,7 @@
     <name>pedidosdomain</name>
 
     <modules>
+        <module>messaging-contract</module>
         <module>clientes-service</module>
         <module>inventario-service</module>
         <module>pedidos-service</module>

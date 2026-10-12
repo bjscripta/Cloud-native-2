@@ -1,6 +1,7 @@
 package com.pedidos360.pedidosdomain.pedidos.service;
 
 import com.pedidos360.pedidosdomain.pedidos.model.Pedido;
+import com.pedidos360.pedidosdomain.pedidos.messaging.PedidoEventPublisher;
 import com.pedidos360.pedidosdomain.pedidos.repository.PedidoRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -15,6 +16,9 @@ public class PedidoService {
 
     @Autowired
     private PedidoRepository pedidoRepository;
+
+    @Autowired
+    private PedidoEventPublisher pedidoEventPublisher;
 
     public List<Pedido> getPedidos() {
         return pedidoRepository.findAll();
@@ -31,7 +35,12 @@ public class PedidoService {
     }
 
     public Pedido savePedido(Pedido pedido) {
-        return pedidoRepository.save(pedido);
+        boolean nuevo = pedido.getId() == 0;
+        Pedido guardado = pedidoRepository.save(pedido);
+        if (nuevo) {
+            pedidoEventPublisher.publicarPedidoCreado(guardado);
+        }
+        return guardado;
     }
 
     public String deletePedido(int id) {
