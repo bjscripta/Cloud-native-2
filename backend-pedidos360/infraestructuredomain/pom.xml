@@ -19,5 +19,6 @@
     <modules>
         <module>bff-service</module>
         <module>eureka-server</module>
+        <module>rabbit-admin-service</module>
     </modules>
 </project>

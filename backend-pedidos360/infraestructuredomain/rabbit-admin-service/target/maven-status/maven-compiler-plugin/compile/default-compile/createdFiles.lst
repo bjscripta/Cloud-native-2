@@ -1,0 +1,5 @@
+com\pedidos360\infrastructure\rabbitadmin\controller\RabbitAdminController.class
+com\pedidos360\infrastructure\rabbitadmin\service\RabbitManagementService.class
+com\pedidos360\infrastructure\rabbitadmin\config\RabbitAdminConfig.class
+com\pedidos360\infrastructure\rabbitadmin\RabbitAdminServiceApplication.class
+com\pedidos360\infrastructure\rabbitadmin\service\RabbitManagementService$QueueStatus.class
