@@ -34,23 +34,33 @@ public class PedidoCreadoConsumer {
     public void recibir(String contenido, Message message, Channel channel) throws IOException {
         long deliveryTag = message.getMessageProperties().getDeliveryTag();
 
-        try {
-            PedidoCreadoEvent evento = objectMapper.readValue(contenido, PedidoCreadoEvent.class);
-
-            if (facturacionRepository.findByPedidoId(evento.pedidoId()).isEmpty()) {
-                Facturacion factura = new Facturacion();
-                factura.setPedidoId(evento.pedidoId());
-                factura.setClienteId(evento.clienteId());
-                factura.setMontoTotal(evento.total());
-                factura.setEstadoPago("PENDIENTE");
-                facturacionRepository.save(factura);
+        for (int intento = 1; intento <= 3; intento++) {
+            try {
+                PedidoCreadoEvent evento = procesar(contenido);
+                channel.basicAck(deliveryTag, false);
+                LOGGER.info("Pedido {} facturado y confirmado con ACK", evento.pedidoId());
+                return;
+            } catch (Exception exception) {
+                LOGGER.error("Intento {}/3 fallido procesando facturacion", intento, exception);
+                if (intento == 3) {
+                    channel.basicNack(deliveryTag, false, false);
+                    LOGGER.error("Mensaje rechazado con NACK y enviado a la DLQ");
+                }
             }
-
-            channel.basicAck(deliveryTag, false);
-            LOGGER.info("Pedido {} facturado y confirmado con ACK", evento.pedidoId());
-        } catch (Exception exception) {
-            LOGGER.error("No fue posible procesar el pedido para facturacion", exception);
-            throw new IllegalStateException("Error procesando mensaje de facturacion", exception);
         }
+    }
+
+    private PedidoCreadoEvent procesar(String contenido) throws IOException {
+        PedidoCreadoEvent evento = objectMapper.readValue(contenido, PedidoCreadoEvent.class);
+
+        if (facturacionRepository.findByPedidoId(evento.pedidoId()).isEmpty()) {
+            Facturacion factura = new Facturacion();
+            factura.setPedidoId(evento.pedidoId());
+            factura.setClienteId(evento.clienteId());
+            factura.setMontoTotal(evento.total());
+            factura.setEstadoPago("PENDIENTE");
+            facturacionRepository.save(factura);
+        }
+        return evento;
     }
 }

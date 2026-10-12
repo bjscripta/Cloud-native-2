@@ -33,23 +33,33 @@ public class PedidoCreadoConsumer {
     public void recibir(String contenido, Message message, Channel channel) throws IOException {
         long deliveryTag = message.getMessageProperties().getDeliveryTag();
 
-        try {
-            PedidoCreadoEvent evento = objectMapper.readValue(contenido, PedidoCreadoEvent.class);
-
-            if (enviosRepository.findByPedidoId(evento.pedidoId()).isEmpty()) {
-                Envios envio = new Envios();
-                envio.setPedidoId(evento.pedidoId());
-                envio.setDireccionEntrega(evento.direccionEntrega());
-                envio.setEstadoEnvio("EN_PREPARACION");
-                envio.setNumeroSeguimiento(UUID.randomUUID().toString());
-                enviosRepository.save(envio);
+        for (int intento = 1; intento <= 3; intento++) {
+            try {
+                PedidoCreadoEvent evento = procesar(contenido);
+                channel.basicAck(deliveryTag, false);
+                LOGGER.info("Pedido {} preparado para envio y confirmado con ACK", evento.pedidoId());
+                return;
+            } catch (Exception exception) {
+                LOGGER.error("Intento {}/3 fallido procesando envio", intento, exception);
+                if (intento == 3) {
+                    channel.basicNack(deliveryTag, false, false);
+                    LOGGER.error("Mensaje rechazado con NACK y enviado a la DLQ");
+                }
             }
-
-            channel.basicAck(deliveryTag, false);
-            LOGGER.info("Pedido {} preparado para envio y confirmado con ACK", evento.pedidoId());
-        } catch (Exception exception) {
-            LOGGER.error("No fue posible procesar el pedido para envio", exception);
-            throw new IllegalStateException("Error procesando mensaje de envio", exception);
         }
+    }
+
+    private PedidoCreadoEvent procesar(String contenido) throws IOException {
+        PedidoCreadoEvent evento = objectMapper.readValue(contenido, PedidoCreadoEvent.class);
+
+        if (enviosRepository.findByPedidoId(evento.pedidoId()).isEmpty()) {
+            Envios envio = new Envios();
+            envio.setPedidoId(evento.pedidoId());
+            envio.setDireccionEntrega(evento.direccionEntrega());
+            envio.setEstadoEnvio("EN_PREPARACION");
+            envio.setNumeroSeguimiento(UUID.randomUUID().toString());
+            enviosRepository.save(envio);
+        }
+        return evento;
     }
 }
