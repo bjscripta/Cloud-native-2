@@ -8,6 +8,7 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 @Configuration
 public class EnviosRabbitConfig {
@@ -40,8 +41,8 @@ public class EnviosRabbitConfig {
 
     @Bean
     public Binding enviosPedidoCreadoBinding(
-            Queue enviosQueue,
-            DirectExchange enviosEventsExchange) {
+            @Qualifier("enviosQueue") Queue enviosQueue,
+            @Qualifier("enviosEventsExchange") DirectExchange enviosEventsExchange) {
         return BindingBuilder.bind(enviosQueue)
                 .to(enviosEventsExchange)
                 .with(RabbitTopology.PEDIDO_CREADO_ROUTING_KEY);
@@ -49,8 +50,8 @@ public class EnviosRabbitConfig {
 
     @Bean
     public Binding enviosDlqBinding(
-            Queue enviosDlq,
-            DirectExchange enviosDeadLetterExchange) {
+            @Qualifier("enviosDlq") Queue enviosDlq,
+            @Qualifier("enviosDeadLetterExchange") DirectExchange enviosDeadLetterExchange) {
         return BindingBuilder.bind(enviosDlq)
                 .to(enviosDeadLetterExchange)
                 .with(RabbitTopology.ENVIOS_DEAD_ROUTING_KEY);

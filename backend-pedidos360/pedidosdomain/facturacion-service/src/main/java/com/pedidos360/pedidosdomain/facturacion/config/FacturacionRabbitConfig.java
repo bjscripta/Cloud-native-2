@@ -8,6 +8,7 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 @Configuration
 public class FacturacionRabbitConfig {
@@ -41,8 +42,8 @@ public class FacturacionRabbitConfig {
 
     @Bean
     public Binding facturacionPedidoCreadoBinding(
-            Queue facturacionQueue,
-            DirectExchange facturacionEventsExchange) {
+            @Qualifier("facturacionQueue") Queue facturacionQueue,
+            @Qualifier("facturacionEventsExchange") DirectExchange facturacionEventsExchange) {
         return BindingBuilder.bind(facturacionQueue)
                 .to(facturacionEventsExchange)
                 .with(RabbitTopology.PEDIDO_CREADO_ROUTING_KEY);
@@ -50,8 +51,8 @@ public class FacturacionRabbitConfig {
 
     @Bean
     public Binding facturacionDlqBinding(
-            Queue facturacionDlq,
-            DirectExchange facturacionDeadLetterExchange) {
+            @Qualifier("facturacionDlq") Queue facturacionDlq,
+            @Qualifier("facturacionDeadLetterExchange") DirectExchange facturacionDeadLetterExchange) {
         return BindingBuilder.bind(facturacionDlq)
                 .to(facturacionDeadLetterExchange)
                 .with(RabbitTopology.FACTURACION_DEAD_ROUTING_KEY);
